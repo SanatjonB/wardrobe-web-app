@@ -147,9 +147,33 @@
   border-top: 1px solid var(--border);
 }
 
-.card-uses {
+.card-uses-btn {
   font-size: 0.8rem;
   color: var(--muted-2);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.15s ease;
+}
+
+.card-uses-btn:hover {
+  color: var(--fg);
+}
+
+.wear-plus {
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.card-uses-btn:hover .wear-plus {
+  opacity: 1;
 }
 
 .card-edit {
@@ -264,13 +288,11 @@
   font-size: 0.95rem;
 }
 
-/* Card image */
 .card-image {
   background-size: cover;
   background-position: center;
 }
 
-/* Modal overlay */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -325,7 +347,6 @@
   background: var(--pill);
 }
 
-/* Image upload */
 .image-upload {
   height: 160px;
   border: 2px dashed var(--border);
@@ -370,7 +391,6 @@
   text-decoration: underline;
 }
 
-/* Fields */
 .modal-fields {
   display: flex;
   flex-direction: column;
@@ -411,7 +431,6 @@
   color: var(--muted-2);
 }
 
-/* Category grid */
 .category-grid {
   display: flex;
   flex-wrap: wrap;
@@ -440,7 +459,6 @@
   border-color: var(--fg);
 }
 
-/* Color picker */
 .color-row {
   display: flex;
   align-items: center;
@@ -462,7 +480,6 @@
   font-family: monospace;
 }
 
-/* Error */
 .modal-error {
   margin: 0;
   font-size: 0.85rem;
@@ -473,7 +490,6 @@
   border-radius: 10px;
 }
 
-/* Actions */
 .modal-actions {
   display: flex;
   gap: 10px;
@@ -517,7 +533,6 @@
   cursor: not-allowed;
 }
 
-/* Add page */
 .add-page-header {
   display: flex;
   align-items: center;

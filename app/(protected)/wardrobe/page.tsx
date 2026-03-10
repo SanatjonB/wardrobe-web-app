@@ -1,5 +1,6 @@
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { SmartBrand } from "@/components/smart-brand";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -10,14 +11,13 @@ import { WardrobeGrid } from "./wardrobe-grid";
 export default async function WardrobePage() {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const userId = claimsData?.claims?.sub;
 
   const { data: items } = await supabase
     .from("wardrobe_items")
     .select("*")
-    .eq("user_id", user?.id)
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   const totalWears = (items ?? []).reduce((a, b) => a + (b.uses ?? 0), 0);
@@ -26,12 +26,12 @@ export default async function WardrobePage() {
     <main className="page">
       <div className="container">
         <nav className="nav">
-          <div className="brand">
-            <div className="logo-dot" />
-            <span>ClosetIQ</span>
-          </div>
+          <SmartBrand />
           <div className="nav-right">
-            <Suspense>
+            <Link href="/contact" className="nav-link">
+              Contact
+            </Link>
+            <Suspense fallback={null}>
               <AuthButton />
             </Suspense>
             <ThemeSwitcher />
@@ -50,7 +50,6 @@ export default async function WardrobePage() {
           </Link>
         </section>
 
-        {/* Stats row */}
         <div className="stats" style={{ maxWidth: "100%", marginTop: "0" }}>
           <div className="stat">
             <div className="stat-num">{items?.length ?? 0}</div>
@@ -68,7 +67,6 @@ export default async function WardrobePage() {
           </div>
         </div>
 
-        {/* Client component handles filtering + pagination */}
         <WardrobeGrid items={items ?? []} />
 
         <footer className="footer">

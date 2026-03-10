@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import "../wardrobe.css";
+import Link from "next/link";
+import { ThemeSwitcher } from "@/components/theme-switcher";
+import { SmartBrand } from "@/components/smart-brand";
+import "./add.css";
 import "../../../page.css";
 
 const CATEGORIES = [
@@ -31,9 +34,16 @@ export default function AddItemPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
   function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   }
@@ -88,9 +98,16 @@ export default function AddItemPage() {
 
       if (insertError) throw insertError;
 
+      setName("");
+      setCategory("");
+      setColor("#000000");
+      setTags("");
+      setImageFile(null);
+      setImagePreview(null);
       router.push("/wardrobe");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
       setLoading(false);
     }
   }
@@ -98,6 +115,16 @@ export default function AddItemPage() {
   return (
     <main className="page">
       <div className="container">
+        <nav className="nav">
+          <SmartBrand />
+          <div className="nav-right">
+            <Link href="/contact" className="nav-link">
+              Contact
+            </Link>
+            <ThemeSwitcher />
+          </div>
+        </nav>
+
         <div className="add-page-header">
           <button className="back-btn" onClick={() => router.back()}>
             ← Back
@@ -106,8 +133,8 @@ export default function AddItemPage() {
         </div>
 
         <div className="add-page-body">
-          {/* Image upload */}
-          <div className="add-section">
+          {/* Image upload — left column */}
+          <div className="add-section-image">
             <p className="field-label">Photo</p>
             <div
               className="image-upload-lg"
@@ -196,19 +223,19 @@ export default function AddItemPage() {
             />
           </div>
 
-          {error && <p className="modal-error">{error}</p>}
+          {error && <p className="add-error">{error}</p>}
 
           {/* Actions */}
           <div className="add-actions">
             <button
-              className="modal-cancel"
+              className="btn-cancel"
               onClick={() => router.back()}
               disabled={loading}
             >
               Cancel
             </button>
             <button
-              className="modal-submit"
+              className="btn-submit"
               onClick={handleSubmit}
               disabled={loading}
             >
