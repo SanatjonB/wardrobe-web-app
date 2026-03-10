@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { SmartBrand } from "@/components/smart-brand";
