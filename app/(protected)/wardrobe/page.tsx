@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { SmartBrand } from "@/components/smart-brand";
@@ -9,6 +7,8 @@ import { Suspense } from "react";
 import "../../page.css";
 import "./wardrobe.css";
 import { WardrobeGrid } from "./wardrobe-grid";
+
+export const dynamic = "force-dynamic";
 
 export default async function WardrobePage() {
   const supabase = await createClient();
