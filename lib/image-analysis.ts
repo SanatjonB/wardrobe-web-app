@@ -88,6 +88,15 @@ export function extractDominantColor(img: HTMLImageElement): string | null {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let mobilenetModel: any = null;
 
+/**
+ * Silently pre-warms the MobileNet model in the background.
+ * Call this from the wardrobe page so the model is ready before the user
+ * opens Add Item — avoids the 3-5s wait on first photo upload.
+ */
+export async function preloadModel(): Promise<void> {
+  await getModel();
+}
+
 async function getModel() {
   if (!mobilenetModel) {
     const tf = await import("@tensorflow/tfjs");

@@ -49,6 +49,15 @@ export default function AddItemPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith("image/")) {
+      setError("Only image files are supported (JPG, PNG, WEBP).");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Image must be under 10 MB.");
+      return;
+    }
+
     // Clean up the previous object URL before creating a new one
     if (imagePreview) URL.revokeObjectURL(imagePreview);
 

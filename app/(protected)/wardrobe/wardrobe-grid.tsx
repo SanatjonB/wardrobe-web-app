@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 // WardrobeItem type lives in lib/types — single source of truth across the app
 import type { WardrobeItem } from "@/lib/types";
@@ -37,6 +37,14 @@ export function WardrobeGrid({ items }: Props) {
   const [editTags, setEditTags] = useState("");
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+
+  // Pre-warm the TF.js MobileNet model in the background while the user browses
+  // their wardrobe — so it's already loaded by the time they open Add Item.
+  useEffect(() => {
+    import("@/lib/image-analysis")
+      .then(({ preloadModel }) => preloadModel())
+      .catch(() => {}); // silent — preload is best-effort
+  }, []);
 
   // Memoised derived values to avoid redundant re-computation on every render
   const categories = useMemo(
@@ -94,6 +102,8 @@ export function WardrobeGrid({ items }: Props) {
     setEditError(null);
     try {
       const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated.");
       const { error } = await supabase
         .from("wardrobe_items")
         .update({
@@ -105,7 +115,8 @@ export function WardrobeGrid({ items }: Props) {
             .map((t) => t.trim().toLowerCase())
             .filter(Boolean),
         })
-        .eq("id", editItem.id);
+        .eq("id", editItem.id)
+        .eq("user_id", user.id);
       if (error) throw error;
       closeEdit();
       router.refresh();
@@ -122,10 +133,13 @@ export function WardrobeGrid({ items }: Props) {
     setEditError(null);
     try {
       const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated.");
       const { error } = await supabase
         .from("wardrobe_items")
         .delete()
-        .eq("id", editItem.id);
+        .eq("id", editItem.id)
+        .eq("user_id", user.id);
       if (error) throw error;
       closeEdit();
       router.refresh();
