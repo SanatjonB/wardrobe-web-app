@@ -45,9 +45,22 @@ export default async function WardrobePage() {
               {items?.length ?? 0} item{(items?.length ?? 0) !== 1 ? "s" : ""}
             </p>
           </div>
-          <Link href="/wardrobe/add" className="add-btn">
-            + Add Item
-          </Link>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <Link
+              href="/wardrobe/outfit"
+              className="add-btn"
+              style={{
+                background: "transparent",
+                color: "var(--fg)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              ✨ Outfits
+            </Link>
+            <Link href="/wardrobe/add" className="add-btn">
+              + Add Item
+            </Link>
+          </div>
         </section>
 
         {/* Stats row */}

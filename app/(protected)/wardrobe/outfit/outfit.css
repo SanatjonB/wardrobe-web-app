@@ -1,0 +1,199 @@
+/* ── Outfit Generator Page ── */
+
+.outfit-page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 10px 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.outfit-step-title {
+  margin: 28px 0 6px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.02em;
+}
+
+.outfit-step-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
+/* Occasion picker grid */
+.occasion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 500px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 480px) {
+  .occasion-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.occasion-btn {
+  padding: 12px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--pill);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.occasion-btn:hover {
+  border-color: var(--fg);
+  color: var(--fg);
+}
+
+.occasion-btn.active {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+
+/* Outfit slots row */
+.outfit-slots {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 2px 16px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 4px;
+}
+
+.outfit-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 160px;
+  max-width: 180px;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+.slot-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* Item card within outfit */
+.outfit-item-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  flex: 1;
+}
+
+.outfit-card-swatch {
+  height: 140px;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.outfit-card-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.outfit-card-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.outfit-card-cat {
+  display: inline-block;
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--pill);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: fit-content;
+}
+
+/* Missing slot placeholder */
+.missing-slot-card {
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-align: center;
+  padding: 14px;
+  flex: 1;
+}
+
+.missing-slot-icon {
+  font-size: 1.4rem;
+  opacity: 0.4;
+}
+
+.missing-slot-text {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Outfit action buttons */
+.outfit-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 0 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+.outfit-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.outfit-empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.outfit-empty-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 0 0 6px;
+}
+
+.outfit-empty-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 20px;
+}

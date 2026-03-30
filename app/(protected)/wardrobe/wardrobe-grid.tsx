@@ -2,18 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { WardrobeItem } from "@/lib/types";
 
 const ITEMS_PER_PAGE = 6;
-
-type WardrobeItem = {
-  id: string;
-  name: string;
-  category: string;
-  color: string;
-  tags: string[];
-  uses: number;
-  image_url: string | null;
-};
 
 type Props = {
   items: WardrobeItem[];
@@ -109,7 +100,12 @@ export function WardrobeGrid({ items }: Props) {
               )}
               <div className="card-footer">
                 <span className="card-uses">Worn {item.uses ?? 0}×</span>
-                <button className="card-edit">Edit</button>
+                <button
+                  className="card-edit"
+                  onClick={() => router.push(`/wardrobe/edit/${item.id}`)}
+                >
+                  Edit
+                </button>
               </div>
             </div>
           </div>

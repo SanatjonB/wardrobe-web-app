@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import "./add.css";
-import "../../../page.css";
+import type { WardrobeItem } from "@/lib/types";
 
 const CATEGORIES = [
   "Tops",
@@ -17,63 +16,31 @@ const CATEGORIES = [
   "Loungewear",
 ];
 
-export default function AddItemPage() {
+export function EditForm({ item }: { item: WardrobeItem }) {
   const router = useRouter();
   const supabase = createClient();
-  const fileRef = useRef<HTMLInputElement>(null);
 
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [color, setColor] = useState("#000000");
-  const [tags, setTags] = useState("");
+  const [name, setName] = useState(item.name);
+  const [category, setCategory] = useState(item.category);
+  const [color, setColor] = useState(item.color ?? "#000000");
+  const [tags, setTags] = useState((item.tags ?? []).join(", "));
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    item.image_url
+  );
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [autoFilled, setAutoFilled] = useState<Set<string>>(new Set());
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  async function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setImageFile(file);
-    const objectUrl = URL.createObjectURL(file);
-    setImagePreview(objectUrl);
-    setAutoFilled(new Set());
-
-    setAnalyzing(true);
-    try {
-      const img = new Image();
-      img.src = objectUrl;
-      await new Promise<void>((res) => { img.onload = () => res(); });
-
-      const { extractDominantColor, classifyImage } = await import(
-        "@/lib/image-analysis"
-      );
-
-      const [hexColor, result] = await Promise.all([
-        Promise.resolve(extractDominantColor(img)),
-        classifyImage(img),
-      ]);
-
-      const filled = new Set<string>();
-      if (hexColor) {
-        setColor(hexColor);
-        filled.add("color");
-      }
-      if (result.category) {
-        setCategory(result.category);
-        filled.add("category");
-      }
-      setAutoFilled(filled);
-    } catch {
-      // Silent failure — user fills in manually
-    } finally {
-      setAnalyzing(false);
-    }
+    setImagePreview(URL.createObjectURL(file));
   }
 
-  async function handleSubmit() {
+  async function handleSave() {
     if (!name.trim() || !category) {
       setError("Name and category are required.");
       return;
@@ -88,7 +55,7 @@ export default function AddItemPage() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated.");
 
-      let image_url: string | null = null;
+      let image_url = item.image_url;
 
       if (imageFile) {
         const ext = imageFile.name.split(".").pop();
@@ -96,20 +63,18 @@ export default function AddItemPage() {
         const { error: uploadError } = await supabase.storage
           .from("wardrobe-images")
           .upload(path, imageFile);
-
         if (uploadError) throw uploadError;
-
         const { data: urlData } = supabase.storage
           .from("wardrobe-images")
           .getPublicUrl(path);
-
         image_url = urlData.publicUrl;
+      } else if (!imagePreview) {
+        image_url = null;
       }
 
-      const { error: insertError } = await supabase
+      const { error: updateError } = await supabase
         .from("wardrobe_items")
-        .insert({
-          user_id: user.id,
+        .update({
           name: name.trim(),
           category,
           color,
@@ -118,16 +83,42 @@ export default function AddItemPage() {
             .map((t) => t.trim().toLowerCase())
             .filter(Boolean),
           image_url,
-          uses: 0,
-        });
+        })
+        .eq("id", item.id);
 
-      if (insertError) throw insertError;
+      if (updateError) throw updateError;
 
       setLoading(false);
       router.push("/wardrobe");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setLoading(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+
+    setDeleting(true);
+    setError(null);
+
+    try {
+      const { error: deleteError } = await supabase
+        .from("wardrobe_items")
+        .delete()
+        .eq("id", item.id);
+
+      if (deleteError) throw deleteError;
+
+      setDeleting(false);
+      router.push("/wardrobe");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setDeleting(false);
+      setConfirmDelete(false);
     }
   }
 
@@ -138,18 +129,22 @@ export default function AddItemPage() {
           <button className="back-btn" onClick={() => router.back()}>
             ← Back
           </button>
-          <h1 className="wardrobe-title">Add Item</h1>
+          <h1 className="wardrobe-title">Edit Item</h1>
         </div>
 
         <div className="add-page-body">
-          {/* Image upload */}
+          {/* Image */}
           <div className="add-section">
             <p className="field-label">Photo</p>
             <div
               className="image-upload-lg"
-              onClick={() => !analyzing && fileRef.current?.click()}
+              onClick={() =>
+                document.getElementById("edit-file-input")?.click()
+              }
               style={
-                imagePreview ? { backgroundImage: `url(${imagePreview})` } : {}
+                imagePreview
+                  ? { backgroundImage: `url(${imagePreview})` }
+                  : {}
               }
             >
               {!imagePreview && (
@@ -159,36 +154,25 @@ export default function AddItemPage() {
                   <span className="upload-sub">optional — JPG, PNG, WEBP</span>
                 </>
               )}
-              {analyzing && (
-                <div className="analyzing-overlay">
-                  <div className="spinner" />
-                  <span className="analyzing-text">Analyzing…</span>
-                </div>
-              )}
               <input
-                ref={fileRef}
+                id="edit-file-input"
                 type="file"
                 accept="image/*"
                 style={{ display: "none" }}
                 onChange={handleImage}
               />
             </div>
-            {imagePreview && !analyzing && (
+            {imagePreview && (
               <button
                 className="remove-image"
                 onClick={() => {
                   setImageFile(null);
                   setImagePreview(null);
-                  setAutoFilled(new Set());
                 }}
               >
                 Remove photo
               </button>
             )}
-            <button className="ai-stub-btn" disabled>
-              ✨ Analyze with AI{" "}
-              <span className="coming-soon-badge">Coming soon</span>
-            </button>
           </div>
 
           {/* Name */}
@@ -196,7 +180,6 @@ export default function AddItemPage() {
             <label className="field-label">Name *</label>
             <input
               className="field-input"
-              placeholder="e.g. White Oxford Shirt"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -204,12 +187,7 @@ export default function AddItemPage() {
 
           {/* Category */}
           <div className="add-section">
-            <label className="field-label">
-              Category *
-              {autoFilled.has("category") && (
-                <span className="autofill-badge">auto-filled</span>
-              )}
-            </label>
+            <label className="field-label">Category *</label>
             <div className="category-grid">
               {CATEGORIES.map((cat) => (
                 <button
@@ -225,12 +203,7 @@ export default function AddItemPage() {
 
           {/* Color */}
           <div className="add-section">
-            <label className="field-label">
-              Color
-              {autoFilled.has("color") && (
-                <span className="autofill-badge">auto-filled</span>
-              )}
-            </label>
+            <label className="field-label">Color</label>
             <div className="color-row">
               <input
                 type="color"
@@ -259,17 +232,29 @@ export default function AddItemPage() {
           <div className="add-actions">
             <button
               className="btn-cancel"
+              style={{ color: confirmDelete ? "#d94f4f" : undefined, borderColor: confirmDelete ? "#d94f4f" : undefined }}
+              onClick={handleDelete}
+              disabled={deleting || loading}
+            >
+              {deleting
+                ? "Deleting…"
+                : confirmDelete
+                ? "Tap again to confirm"
+                : "Delete Item"}
+            </button>
+            <button
+              className="btn-cancel"
               onClick={() => router.back()}
-              disabled={loading}
+              disabled={loading || deleting}
             >
               Cancel
             </button>
             <button
               className="btn-submit"
-              onClick={handleSubmit}
-              disabled={loading}
+              onClick={handleSave}
+              disabled={loading || deleting}
             >
-              {loading ? "Saving…" : "Add to Wardrobe"}
+              {loading ? "Saving…" : "Save Changes"}
             </button>
           </div>
         </div>
