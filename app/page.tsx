@@ -1,19 +1,22 @@
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { SmartBrand } from "@/components/smart-brand";
 import { Suspense } from "react";
+import Link from "next/link";
 import "./page.css";
+
 export default function Home() {
   return (
     <main className="page">
       <div className="container">
         <nav className="nav">
-          <div className="brand">
-            <div className="logo-dot" />
-            <span>ClosetIQ</span>
-          </div>
+          <SmartBrand />
 
           <div className="nav-right">
-            <Suspense>
+            <Link href="/contact" className="nav-link">
+              Contact
+            </Link>
+            <Suspense fallback={null}>
               <AuthButton />
             </Suspense>
             <ThemeSwitcher />
@@ -33,7 +36,7 @@ export default function Home() {
           </p>
 
           <div className="hero-actions">
-            <Suspense>
+            <Suspense fallback={null}>
               <AuthButton />
             </Suspense>
           </div>

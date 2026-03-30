@@ -11,9 +11,29 @@ export async function AuthButton() {
 
   const user = data?.claims;
 
+  const initial = user?.email?.[0]?.toUpperCase() ?? "?";
+
   return user ? (
-    <div className="flex items-center gap-4">
-      Hey, {user.email}!
+    <div className="flex items-center gap-3">
+      <div
+        title={user.email}
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: "999px",
+          background: "var(--fg)",
+          color: "var(--bg)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "0.8rem",
+          fontWeight: 700,
+          letterSpacing: 0,
+          flexShrink: 0,
+        }}
+      >
+        {initial}
+      </div>
       <LogoutButton />
     </div>
   ) : (

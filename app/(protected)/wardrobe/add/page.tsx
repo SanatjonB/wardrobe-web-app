@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ThemeSwitcher } from "@/components/theme-switcher";
+// SmartBrand routes to /wardrobe if logged in, / if logged out
+import { SmartBrand } from "@/components/smart-brand";
 import "./add.css";
 import "../../../page.css";
 
@@ -33,19 +37,36 @@ export default function AddItemPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [autoFilled, setAutoFilled] = useState<Set<string>>(new Set());
 
+  // Revoke the object URL when the component unmounts or the preview changes
+  // to prevent memory leaks from dangling blob references
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
   async function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Clean up the previous object URL before creating a new one
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+
     setImageFile(file);
     const objectUrl = URL.createObjectURL(file);
     setImagePreview(objectUrl);
     setAutoFilled(new Set());
 
+    // Run TF.js MobileNet classification + Canvas color extraction in parallel.
+    // Both run entirely in the browser — no API cost.
     setAnalyzing(true);
     try {
       const img = new Image();
-      img.src = objectUrl;
-      await new Promise<void>((res) => { img.onload = () => res(); });
+      await new Promise<void>((res) => {
+        img.onload = () => res();
+        img.onerror = () => res(); // resolve on error so analyzing always resets
+        img.src = objectUrl;       // set src AFTER handlers to avoid race condition
+      });
 
       const { extractDominantColor, classifyImage } = await import(
         "@/lib/image-analysis"
@@ -67,7 +88,7 @@ export default function AddItemPage() {
       }
       setAutoFilled(filled);
     } catch {
-      // Silent failure — user fills in manually
+      // Silent failure — user fills in manually if analysis doesn't work
     } finally {
       setAnalyzing(false);
     }
@@ -123,10 +144,18 @@ export default function AddItemPage() {
 
       if (insertError) throw insertError;
 
-      setLoading(false);
+      // Reset form so it's clean if the user navigates back and adds another item
+      setName("");
+      setCategory("");
+      setColor("#000000");
+      setTags("");
+      setImageFile(null);
+      setImagePreview(null);
       router.push("/wardrobe");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      // Always reset loading — whether success or error
       setLoading(false);
     }
   }
@@ -134,6 +163,17 @@ export default function AddItemPage() {
   return (
     <main className="page">
       <div className="container">
+        {/* Nav — SmartBrand routes to /wardrobe if logged in, / if not */}
+        <nav className="nav">
+          <SmartBrand />
+          <div className="nav-right">
+            <Link href="/contact" className="nav-link">
+              Contact
+            </Link>
+            <ThemeSwitcher />
+          </div>
+        </nav>
+
         <div className="add-page-header">
           <button className="back-btn" onClick={() => router.back()}>
             ← Back
@@ -142,8 +182,8 @@ export default function AddItemPage() {
         </div>
 
         <div className="add-page-body">
-          {/* Image upload */}
-          <div className="add-section">
+          {/* Image upload — left column */}
+          <div className="add-section-image">
             <p className="field-label">Photo</p>
             <div
               className="image-upload-lg"
@@ -185,6 +225,7 @@ export default function AddItemPage() {
                 Remove photo
               </button>
             )}
+            {/* Placeholder for the future paid Claude Vision analysis tier */}
             <button className="ai-stub-btn" disabled>
               ✨ Analyze with AI{" "}
               <span className="coming-soon-badge">Coming soon</span>
@@ -202,7 +243,7 @@ export default function AddItemPage() {
             />
           </div>
 
-          {/* Category */}
+          {/* Category — badge appears when TF.js auto-detected it */}
           <div className="add-section">
             <label className="field-label">
               Category *
@@ -223,7 +264,7 @@ export default function AddItemPage() {
             </div>
           </div>
 
-          {/* Color */}
+          {/* Color — badge appears when Canvas API extracted it from the photo */}
           <div className="add-section">
             <label className="field-label">
               Color
