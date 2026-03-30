@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import "../../../page.css";
+import "../../wardrobe.css";
 import "../../add/add.css";
 import { EditForm } from "./edit-form";
 
