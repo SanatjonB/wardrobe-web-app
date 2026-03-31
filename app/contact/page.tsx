@@ -71,8 +71,8 @@ export default function ContactPage() {
           {/* Left — info */}
           <div className="contact-info">
             <div className="info-block">
-              <p className="info-label">Email</p>
-              <p className="info-value">sburhanov1977@gmail.com</p>
+              <p className="info-label">Leave a message</p>
+              <p className="info-value">Fill out the form and we&apos;ll get back to you.</p>
             </div>
             <div className="info-block">
               <p className="info-label">Response time</p>
