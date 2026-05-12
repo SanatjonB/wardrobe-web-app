@@ -9,12 +9,13 @@ export default function Home() {
   return (
     <main className="page">
       <div className="container">
-
         {/* ── Nav ── */}
         <nav className="nav">
           <SmartBrand />
           <div className="nav-right">
-            <Link href="/contact" className="nav-link">Contact</Link>
+            <Link href="/contact" className="nav-link">
+              Contact
+            </Link>
             <Suspense fallback={null}>
               <AuthButton />
             </Suspense>
@@ -26,7 +27,9 @@ export default function Home() {
         <section className="hero">
           <p className="kicker">Your closet, organized.</p>
           <h1 className="headline">
-            Stop losing time<br />looking for outfits.
+            Stop losing time
+            <br />
+            looking for outfits.
           </h1>
           <p className="subhead">
             ClosetIQ helps you track what you own, plan fits faster, and keep
@@ -60,7 +63,6 @@ export default function Home() {
           <p className="section-label">What you can do</p>
           <h2 className="section-title">Everything your wardrobe needs</h2>
           <div className="features-grid">
-
             <div className="feature-card">
               <span className="feature-icon">📦</span>
               <h3 className="feature-title">Track every item</h3>
@@ -96,7 +98,6 @@ export default function Home() {
                 you actually reach for and which ones just sit there.
               </p>
             </div>
-
           </div>
         </section>
 
@@ -105,7 +106,6 @@ export default function Home() {
           <p className="section-label">How it works</p>
           <h2 className="section-title">Up and running in minutes</h2>
           <div className="steps-grid">
-
             <div className="step-card">
               <div className="step-num">01</div>
               <h3 className="step-title">Create your account</h3>
@@ -131,7 +131,6 @@ export default function Home() {
                 pulled from your actual wardrobe.
               </p>
             </div>
-
           </div>
         </section>
 
@@ -144,7 +143,6 @@ export default function Home() {
             Here&apos;s what&apos;s coming next.
           </p>
           <div className="coming-grid">
-
             <div className="coming-card">
               <div className="coming-card-top">
                 <span className="feature-icon">🤖</span>
@@ -182,7 +180,6 @@ export default function Home() {
                 the rack, and get suggestions on what to add or remove.
               </p>
             </div>
-
           </div>
         </section>
 
@@ -197,9 +194,10 @@ export default function Home() {
 
         <footer className="footer">
           © 2026 ClosetIQ. All rights reserved. ·{" "}
-          <Link href="/contact" className="nav-link">Contact</Link>
+          <Link href="/contact" className="nav-link">
+            Contact
+          </Link>
         </footer>
-
       </div>
     </main>
   );
