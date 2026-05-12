@@ -3,7 +3,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { SmartBrand } from "@/components/smart-brand";
 import { Suspense } from "react";
 import Link from "next/link";
-
+import "./page.css";
 export default function Home() {
   return (
     <main className="page">
