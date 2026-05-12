@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     const { error } = await resend.emails.send({
-      from: "ClosetIQ Contact <onboarding@resend.dev>",
+      from: "ClosetIQ <hello@closetiq.io>",
       to: process.env.CONTACT_EMAIL ?? "sburhanov1977@gmail.com",
       replyTo: email,
       subject: subject?.trim() || `New message from ${escapeHtml(name)}`,
